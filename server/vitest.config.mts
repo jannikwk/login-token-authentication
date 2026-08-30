@@ -7,5 +7,13 @@ export default defineConfig({
         include: ['test/**/*.test.ts'],
         exclude: ['node_modules', 'dist'],
         passWithNoTests: true,
+        coverage: {
+            provider: 'v8',
+            include: ['src/**/*.ts'],
+            exclude: [
+                'src/server.ts',
+                'src/types/**',
+            ],
+        }
     },
 });
