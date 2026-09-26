@@ -12,4 +12,3 @@ A fullstack authentication demo featuring a secure backend API, a responsive fro
 
 ## Preview (Home + Succesful login)
 ![homepage](assets/homepage.png)
-

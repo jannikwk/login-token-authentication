@@ -13,6 +13,14 @@ const toUser = (user: NewUser): User => ({ id: user.id, username: user.username 
 const findByUsername = (username: string) => users.find((u) => u.username === username);
 
 export const createUser = async (username: string, password: string, log: Logger = logger): Promise<User> => {
+    if (!username || username.trim() === '') {
+        throw new Error('Please enter a username');
+    }
+
+    if (!password || password.trim() === '') {
+        throw new Error('Please enter a password');
+    }
+
     if (pendingUsernames.has(username) || findByUsername(username)) {
         log.warn({ username }, 'User creation failed because the username already exists');
         throw new ConflictError('Username is already taken');
