@@ -19,7 +19,7 @@ afterEach(() => {
 });
 
 const loadUserService = async () => {
-    const { createUser, authenticateUser, getUserById } = await import('../../src/services/userService');
+    const { createUser, authenticateUser, getUserById } = await import('../../../src/services/userService');
     return { createUser, authenticateUser, getUserById };
 }
 
@@ -42,14 +42,14 @@ describe('createUser', () => {
         await expect(createUser(TEST_USERNAME, 'anotherPassword456')).rejects.toThrow('Username is already taken');
     });
 
-    it('throws an error when the username is empty', async () => {
+    it.each(['', ' ', '\t', '   ', '\t\t'])('throws an error when the username is %p', async (username) => {
         const { createUser } = await loadUserService();
-        await expect(createUser('', TEST_PASSWORD)).rejects.toThrow('Please enter a username');
+        await expect(createUser(username, TEST_PASSWORD)).rejects.toThrow('Please enter a username');
     });
 
-    it('throws an error when the password is empty', async () => {
+    it.each(['', ' ', '\t', '   ', '\t\t'])('throws an error when the password is %p', async (password) => {
         const { createUser } = await loadUserService();
-        await expect(createUser(TEST_USERNAME, '')).rejects.toThrow('Please enter a password');
+        await expect(createUser(TEST_USERNAME, password)).rejects.toThrow('Please enter a password');
     });
 
     it('throws a conflict error when the username is already being created', async () => {

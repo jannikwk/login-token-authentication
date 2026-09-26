@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
-import { validateBody } from "../../src/middleware/validateBody";
-import { ValidationError } from "../../src/errors/AppError";
-import { authSchema } from "../../src/schemas/auth.schema";
+import { validateBody } from "../../../src/middleware/validateBody";
+import { ValidationError } from "../../../src/errors/AppError";
+import { authSchema } from "../../../src/schemas/auth.schema";
 import { describe, expect, it, vi } from "vitest";
 
 describe('validateBody middleware', () => {
