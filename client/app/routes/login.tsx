@@ -12,6 +12,7 @@ export function meta({ }: Route.MetaArgs) {
 export default function Login() {
   const loginMutation = useLogin();
   const navigate = useNavigate();
+  const isPending = loginMutation.isPending;
 
   const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -51,8 +52,10 @@ export default function Login() {
 
           <button
             type="submit"
-            className="mt-4 bg-white text-black rounded-sm px-4 py-2 transition-colors hover:bg-gray-300 active:bg-gray-400">
-            Login
+            disabled={isPending}
+            aria-busy={isPending}
+            className="mt-4 cursor-pointer bg-white text-black rounded-sm px-4 py-2 transition-colors hover:bg-gray-300 active:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed">
+            {isPending ? "Logging in..." : "Login"}
           </button>
         </Form>
 

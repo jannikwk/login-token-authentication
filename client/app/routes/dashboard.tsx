@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import type { Route } from "./+types/dashboard";
 import { useUser } from "~/hooks/auth/useUser";
 import { logout } from "~/services/authService";
+import LogoutDialog, { LOGOUT_DIALOG_ID } from "~/components/LogoutDialog";
 
 export function meta({ }: Route.MetaArgs) {
     return [
@@ -16,16 +16,6 @@ export default function Dashboard() {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const { data: user } = useUser();
-    const [confirming, setConfirming] = useState(false);
-    const resetTimer = useRef<number | null>(null);
-
-    useEffect(() => {
-        return () => {
-            if (resetTimer.current !== null) {
-                window.clearTimeout(resetTimer.current);
-            }
-        };
-    }, []);
 
     const handleLogout = async () => {
         try {
@@ -34,15 +24,6 @@ export default function Dashboard() {
             queryClient.removeQueries({ queryKey: ["user"] });
             navigate("/", { replace: true });
         }
-    };
-
-    const handleLogoutClick = () => {
-        if (confirming) {
-            handleLogout();
-            return;
-        }
-        setConfirming(true);
-        resetTimer.current = window.setTimeout(() => setConfirming(false), 3000);
     };
 
     return (
@@ -55,15 +36,15 @@ export default function Dashboard() {
                 <p>Your userID: {user?.id ?? "unknown"}</p>
                 <button
                     type="button"
-                    onClick={handleLogoutClick}
-                    className={`self-center mt-6 rounded-md px-3 py-1.5 text-sm font-semibold transition-colors ${confirming
-                        ? "bg-red-600 text-white hover:bg-red-500"
-                        : "bg-white text-gray-900 hover:bg-red-600 hover:text-white"
-                        }`}
+                    command="show-modal"
+                    commandfor={LOGOUT_DIALOG_ID}
+                    className="cursor-pointer self-center mt-6 rounded-md bg-white px-3 py-1.5 text-sm font-semibold text-gray-900 transition-colors hover:bg-red-600 hover:text-white"
                 >
-                    {confirming ? "Confirm logout?" : "Logout"}
+                    Logout
                 </button>
             </section>
+
+            <LogoutDialog onConfirm={handleLogout} />
         </main>
     );
 }
