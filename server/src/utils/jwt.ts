@@ -18,7 +18,14 @@ export const signToken = (user: User) => {
 
 export const verifyToken = (token: string): JWTPayload => {
     try {
-        return jwt.verify(token, env.jwtSecret) as JWTPayload;
+        const payload = jwt.verify(token, env.jwtSecret);
+
+        if (typeof payload === "string" || typeof payload.sub !== "string" || payload.sub.trim() === "" ||
+            typeof payload.username !== 'string' || payload.username.trim() === '') {
+            throw new AuthenticationError("Invalid token payload");
+        }
+
+        return payload as JWTPayload;
     } catch {
         throw new AuthenticationError("Invalid or expired token");
     }
