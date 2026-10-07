@@ -1,6 +1,6 @@
 import { v7 as uuidv7 } from "uuid";
 import type { NewUser, User } from "../types/user.types";
-import { AuthenticationError, ConflictError } from "../errors/AppError";
+import { AuthenticationError, ConflictError, ValidationError } from "../errors/AppError";
 import { logger } from "../utils/logger";
 import type { Logger } from "pino";
 import { comparePassword, hashPassword } from "../utils/password";
@@ -13,35 +13,38 @@ const toUser = (user: NewUser): User => ({ id: user.id, username: user.username 
 const findByUsername = (username: string) => users.find((u) => u.username === username);
 
 export const createUser = async (username: string, password: string, log: Logger = logger): Promise<User> => {
-    if (!username || username.trim() === '') {
-        throw new Error('Please enter a username');
+    const normalizedUsername = typeof username === 'string' ? username.trim() : '';
+    
+    if (!normalizedUsername) {
+        throw new ValidationError('Please enter a username');
     }
 
-    if (!password || password.trim() === '') {
-        throw new Error('Please enter a password');
+    if (typeof password !== 'string' || password.trim() === '') {
+        throw new ValidationError('Please enter a password');
     }
 
-    if (pendingUsernames.has(username) || findByUsername(username)) {
+    if (pendingUsernames.has(normalizedUsername) || findByUsername(normalizedUsername)) {
         log.warn({ username }, 'User creation failed because the username already exists');
         throw new ConflictError('Username is already taken');
     }
 
-    pendingUsernames.add(username);
+    pendingUsernames.add(normalizedUsername);
 
     try {
         const encryptedPassword = await hashPassword(password);
 
         const newUser: NewUser = {
             id: uuidv7(),
-            username,
+            username: normalizedUsername,
             passwordHash: encryptedPassword
         };
 
         users.push(newUser);
         log.info({ userId: newUser.id }, 'User created successfully');
+        
         return toUser(newUser);
     } finally {
-        pendingUsernames.delete(username);
+        pendingUsernames.delete(normalizedUsername);
     }
 };
 
