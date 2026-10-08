@@ -10,3 +10,38 @@
 
 ## Preview (Home + Succesful login)
 ![homepage](assets/homepage.png)
+
+## Class Diagram
+```mermaid
+classDiagram
+    direction TB
+
+    namespace Frontend {    
+        class AuthService {
+            - baseUrl: string
+            - api: AxiosInstance
+            + login(credentials: Credentials) Promise~User~
+            + register(credentials: Credentials) Promise~User~
+            + getCurrentUser() Promise~User~
+            + logout() Promise~User~
+        }
+    }
+
+    namespace Frontend.hooks {
+        class useLogin {
+            + mutate(credentials: Credentials) Promise~User~
+        }
+
+        class useRegister {
+            + mutate(credentials: Credentials) Promise~User~
+        }
+
+        class useUser {
+            + query() Promise~User~
+        }
+    }
+
+    useLogin --> AuthService
+    useRegister --> AuthService
+    useUser --> AuthService
+    ```
