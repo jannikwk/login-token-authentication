@@ -13,7 +13,7 @@
 
 ## Class Diagram
 ```mermaid
-classDiagram
+classDiagram-v2
     direction TB
 
     namespace Frontend {    
@@ -41,7 +41,17 @@ classDiagram
         }
     }
 
-    useLogin --> AuthService
-    useRegister --> AuthService
-    useUser --> AuthService
+    namespace Frontend.types {
+        class Credentials {
+            + username: string
+            + password: string
+        }
+    }
+
+    useLogin ..> AuthService
+    useRegister ..> AuthService
+    useUser ..> AuthService
+
+    useLogin ..> Credentials : Uses
+    useRegister ..> Credentials : Uses
     ```
