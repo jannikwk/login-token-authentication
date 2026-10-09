@@ -13,6 +13,7 @@
 
 ## Backend Component Architecture & Request Pipeline
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 classDiagram-v2
     direction TB
 
