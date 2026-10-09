@@ -16,84 +16,88 @@
 classDiagram-v2
     direction TB
 
-    namespace Frontend {    
-        class AuthService {
-            - baseURL: string
-            - api: AxiosInstance
-            + login(credentials: Credentials) Promise~User~
-            + register(credentials: Credentials) Promise~User~
-            + getCurrentUser() Promise~User~
-            + logout() Promise~void~
-        }
+    %% ==========================================
+    %% Client
+    %% ==========================================
+    class authService {
+        <<Frontend>>
+        - baseURL: string
+        - api: AxiosInstance
+        + login(credentials: Credentials) Promise~User~
+        + register(credentials: Credentials) Promise~User~
+        + getCurrentUser() Promise~User~
+        + logout() Promise~void~
     }
 
-    namespace Frontend.Hooks {
-        class useLogin {
-            + mutate(credentials: Credentials) Promise~User~
-        }
+    authService --> authController
 
-        class useRegister {
-            + mutate(credentials: Credentials) Promise~User~
-        }
+    class useLogin {
+        <<Hook>>
+        + mutate(credentials: Credentials) Promise~User~
+    }
 
-        class useUser {
-            + query() Promise~User~
-        }
+    class useRegister {
+        <<Hook>>
+        + mutate(credentials: Credentials) Promise~User~
+    }
+
+    class useUser {
+        <<Hook>>
+        + query() Promise~User~
     }
 
     %% Hooks call the auth service and work with the shared types
-    useLogin ..> AuthService
-    useRegister ..> AuthService
-    useUser ..> AuthService
+    useLogin ..> authService
+    useRegister ..> authService
+    useUser ..> authService
 
     useLogin ..> Credentials : Uses
     useRegister ..> Credentials : Uses
     useUser ..> User : Uses
 
-    namespace Frontend.Types {
-        class Credentials {
-            + username: string
-            + password: string
-        }
-
-        class User {
-            + id: string
-            + username: string
-        }
+    class Credentials {
+        <<Type>>
+        + username: string
+        + password: string
     }
 
-    namespace Frontend.Components {
-        class ProtectedRoute {
-        }
-
-        class LogoutDialog {
-            + LOGOUT_DIALOG_ID: string
-            + onConfirm: () => void
-        }
+    class User {
+        <<Type>>
+        + id: string
+        + username: string
     }
 
-    namespace Frontend.Routes {
-        class Home {
-        }
+    class ProtectedRoute {
+        <<Component>>
+    }
 
-        class Login {
-            <<route>>
-            - handleSubmit(e: SubmitEvent~HTMLFormElement~) void
-        }
+    class LogoutDialog {
+        <<Component>>
+        + LOGOUT_DIALOG_ID: string
+        + onConfirm: () => void
+    }
 
-        class Register {
-            <<route>>
-            - MIN_PASSWORD_LENGTH: number$
-            - passwordError: string
-            - confirmPasswordError: string
-            - clearErrors() void
-            - handleSubmit(e: SubmitEvent~HTMLFormElement~) void
-        }
+    class Home {
+        <<Route>>
+    }
 
-        class Dashboard {
-            <<route>>
-            - handleLogout() Promise~void~
-        }
+    class Login {
+        <<Route>>
+        - handleSubmit(e: SubmitEvent~HTMLFormElement~) void
+    }
+
+    class Register {
+        <<Route>>
+        - MIN_PASSWORD_LENGTH: number$
+        - passwordError: string
+        - confirmPasswordError: string
+        - clearErrors() void
+        - handleSubmit(e: SubmitEvent~HTMLFormElement~) void
+    }
+
+    class Dashboard {
+        <<Route>>
+        - handleLogout() Promise~void~
     }
 
     %% Routes use the hooks (and the data they return)
@@ -101,8 +105,18 @@ classDiagram-v2
     Register ..> useRegister : Uses
     Dashboard ..> useUser : Uses
     ProtectedRoute ..> useUser : Uses
-    Dashboard ..> AuthService : Uses
+    Dashboard ..> authService : Uses
 
     %% Composition: the whole creates and owns the part
     Dashboard *-- LogoutDialog : renders
+
+    %% ==========================================
+    %% Server
+    %% ==========================================
+    class authController {
+        <<Server-Controller>>
+        + register(req: Request, res: Response) Promise~User~
+        + login(req: Request, res: Response) Promise~User~
+    }
+
 ```
