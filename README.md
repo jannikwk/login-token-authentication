@@ -13,70 +13,51 @@
 
 ## Backend Component Architecture & Request Pipeline
 ```mermaid
-%%{init: {'flowchart': {'wrappingWidth': 600}}}%%
-graph TD
-    Client["Client / Frontend"]
-    Server
-    App
+classDiagram-v2
+    direction TB
 
-    Client -->|Http-request| Server
-    Server -->|Initializes| App
+    namespace Frontend {    
+        class AuthService {
+            - baseUrl: string
+            - api: AxiosInstance
+            + login(credentials: Credentials) Promise~User~
+            + register(credentials: Credentials) Promise~User~
+            + getCurrentUser() Promise~User~
+            + logout() Promise~User~
+        }
+    }
 
-    Routes["authRoutes <br> (/api/auth)"]
+    namespace Frontend.Hooks {
+        class useLogin {
+            + mutate(credentials: Credentials) Promise~User~
+        }
 
-    App --> Routes
+        class useRegister {
+            + mutate(credentials: Credentials) Promise~User~
+        }
 
-    subgraph Endpoints
-        Login["POST /login"]
-        Register["POST /register"]
-        Logout["POST /logout"]
-        Me["GET /me"]
-    end
+        class useUser {
+            + query() Promise~User~
+        }
+    }
 
-    Routes --> Login
-    Routes --> Register
-    Routes --> Logout
-    Routes --> Me
+    useLogin ..> AuthService
+    useRegister ..> AuthService
+    useUser ..> AuthService
 
-    subgraph Middleware
-        ValidateBody["validateBody <br> (Zod Schema)"]
-        RequireAuth["requireAuth <br> (Verify JWT Cookie)"]
-    end
+    useLogin ..> Credentials : Uses
+    useRegister ..> Credentials : Uses
+    useUser ..> User : Uses
 
-    Login --> ValidateBody
-    Register --> ValidateBody
-    Me --> RequireAuth
+    namespace Frontend.Types {
+        class Credentials {
+            + username: string
+            + password: string
+        }
 
-    AuthController["authController <br> (Request / Response Handling)"]
-
-    ValidateBody --> AuthController
-    Logout --> AuthController
-    RequireAuth --> AuthController
-
-    subgraph Configurations ["Application Configuration"]
-        Cookies["cookies.ts <br> (Cookie & Environment Options)"]
-    end
-
-    AuthController -.->|Sets & clears cookies| Cookies
-
-    subgraph Business_Logic["Business Logic & Utilities"]
-        UserService["userService <br> (createUser, authenticateUser...)"]
-
-        subgraph Utils
-            Password["password <br> (hashPassword, comparePassword)"]
-            JWT["jwt <br> (signToken, verifyToken)"]
-        end
-    end
-
-    AuthController --> UserService
-    UserService -.-> Password
-    AuthController -.->|Signs token| JWT
-    RequireAuth -.->|Verifies token| JWT
-
-    subgraph Shared
-        User["user <br> (Credentials, StoredUser, PublicUser)"]
-    end
-
-    ValidateBody -.->|Validates body| User
-    UserService -.->|Infers TS types| User
-```
+        class User {
+            + id: string
+            + username: string
+        }
+    }
+    ```
