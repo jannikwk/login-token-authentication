@@ -27,7 +27,7 @@ classDiagram-v2
         }
     }
 
-    namespace Frontend.hooks {
+    namespace Frontend.Hooks {
         class useLogin {
             + mutate(credentials: Credentials) Promise~User~
         }
@@ -41,17 +41,23 @@ classDiagram-v2
         }
     }
 
-    namespace Frontend.types {
-        class Credentials {
-            + username: string
-            + password: string
-        }
-    }
-
     useLogin ..> AuthService
     useRegister ..> AuthService
     useUser ..> AuthService
 
     useLogin ..> Credentials : Uses
     useRegister ..> Credentials : Uses
+    useUser ..> User : Uses
+
+    namespace Frontend.Types {
+        class Credentials {
+            + username: string
+            + password: string
+        }
+
+        class User {
+            + id: string
+            + username: string
+        }
+    }
     ```
