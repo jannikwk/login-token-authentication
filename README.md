@@ -27,18 +27,21 @@ classDiagram-v2
         }
     }
 
-    namespace Frontend.Hooks {
-        class useLogin {
-            + mutate(credentials: Credentials) Promise~User~
-        }
+    authService --> authController
 
-        class useRegister {
-            + mutate(credentials: Credentials) Promise~User~
-        }
+    class useLogin {
+        <<Hook>>
+        + mutate(credentials: Credentials) Promise~User~
+    }
 
-        class useUser {
-            + query() Promise~User~
-        }
+    class useRegister {
+        <<Hook>>
+        + mutate(credentials: Credentials) Promise~User~
+    }
+
+    class useUser {
+        <<Hook>>
+        + query() Promise~User~
     }
 
     useLogin ..> AuthService
@@ -49,15 +52,9 @@ classDiagram-v2
     useRegister ..> Credentials : Uses
     useUser ..> User : Uses
 
-    namespace Frontend.Types {
-        class Credentials {
-            + username: string
-            + password: string
-        }
-
-        class User {
-            + id: string
-            + username: string
-        }
+    class Credentials {
+        <<Type>>
+        + username: string
+        + password: string
     }
     ```
