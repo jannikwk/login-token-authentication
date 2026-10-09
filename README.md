@@ -13,7 +13,6 @@
 
 ## Class Diagram
 ```mermaid
-%%{init: {'theme': 'dark'}}%%
 classDiagram-v2
     direction TB
 
