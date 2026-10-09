@@ -18,12 +18,12 @@ classDiagram-v2
 
     namespace Frontend {    
         class AuthService {
-            - baseUrl: string
+            - baseURL: string
             - api: AxiosInstance
             + login(credentials: Credentials) Promise~User~
             + register(credentials: Credentials) Promise~User~
             + getCurrentUser() Promise~User~
-            + logout() Promise~User~
+            + logout() Promise~void~
         }
     }
 
@@ -41,6 +41,7 @@ classDiagram-v2
         }
     }
 
+    %% Hooks call the auth service and work with the shared types
     useLogin ..> AuthService
     useRegister ..> AuthService
     useUser ..> AuthService
@@ -60,4 +61,48 @@ classDiagram-v2
             + username: string
         }
     }
-    ```
+
+    namespace Frontend.Components {
+        class ProtectedRoute {
+        }
+
+        class LogoutDialog {
+            + LOGOUT_DIALOG_ID: string
+            + onConfirm: () => void
+        }
+    }
+
+    namespace Frontend.Routes {
+        class Home {
+        }
+
+        class Login {
+            <<route>>
+            - handleSubmit(e: SubmitEvent~HTMLFormElement~) void
+        }
+
+        class Register {
+            <<route>>
+            - MIN_PASSWORD_LENGTH: number$
+            - passwordError: string
+            - confirmPasswordError: string
+            - clearErrors() void
+            - handleSubmit(e: SubmitEvent~HTMLFormElement~) void
+        }
+
+        class Dashboard {
+            <<route>>
+            - handleLogout() Promise~void~
+        }
+    }
+
+    %% Routes use the hooks (and the data they return)
+    Login ..> useLogin : Uses
+    Register ..> useRegister : Uses
+    Dashboard ..> useUser : Uses
+    ProtectedRoute ..> useUser : Uses
+    Dashboard ..> AuthService : Uses
+
+    %% Composition: the whole creates and owns the part
+    Dashboard *-- LogoutDialog : renders
+```
