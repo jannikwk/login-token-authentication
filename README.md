@@ -119,4 +119,73 @@ classDiagram-v2
         + login(req: Request, res: Response) Promise~User~
     }
 
+    class userService {
+        <<Server-Service>>
+        - users: NewUser[]
+        - pendingUsernames: Set~string~
+        - toUser(user: NewUser) User
+        - findByUsername(username: string) User
+        + createUser(username: string, password: string, log: Logger) Promise~User~
+        + authenticateUser(username: string, password: string, log: Logger) Primse~User~
+        + getUserById(id: string, log: Logger) Promise~User | undefined~
+    }
+
+    authController --> userService
+    authController ..> AuthenticationError : uses
+
+    class NewUser {
+        <<Type>>
+        id: string
+        username: string
+        passwordHash: string
+    }
+
+    class ServerUser["User"] {
+        <<Type>>
+        + id: string
+        + username: string
+    }
+
+    userService ..> NewUser : uses
+    userService ..> ServerUser : uses
+
+    class password {
+        <<Utillity>>
+        + hashPassword(password: string) Promise~string~
+        + comparePassword(password: string, passwordHash: string) Promise~boolean~
+    }
+
+    userService ..> password : uses
+
+    class ValidationError {
+        + ~constructor~ ValidationError(message: string)
+    }
+
+    class AuthenticationError {
+        + ~constructor~ AuthenticationError(message: string)
+    }
+
+    class ConflictError {
+        + ~constructor~ ConfilctError(message: string)
+    }
+
+    userService ..> ValidationError : throws
+    userService ..> ConflictError : throws
+    userService ..> AuthenticationError : throws
+
+    class jwt {
+        <<Utillity>>
+        + signToken(user: User) string
+        + verifyToken(token: string) JWTPayload
+    }
+
+    class JWTPayload {
+        <<Type>>
+        + sub: string
+        + username: string
+    }
+
+    authController ..> jwt
+    jwt ..> AuthenticationError : throws
+    jwt ..> JWTPayload : uses
 ```
