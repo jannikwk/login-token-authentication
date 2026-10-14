@@ -13,7 +13,7 @@
 
 ## Backend Component Architecture & Request Pipeline
 ```mermaid
-graph LR
+graph TD
     Client["Client / Frontend"]
     Server
     App
