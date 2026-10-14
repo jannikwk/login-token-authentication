@@ -11,181 +11,64 @@
 ## Preview (Home + Succesful login)
 ![homepage](assets/homepage.png)
 
-## Class Diagram
+## Backend Component Architecture & Request Pipeline
 ```mermaid
-classDiagram-v2
-    direction TB
+graph LR
+    Client["Client / Frontend"]
+    Server
+    App
 
-    %% ==========================================
-    %% Client
-    %% ==========================================
-    class authService {
-        <<Frontend>>
-        - baseURL: string
-        - api: AxiosInstance
-        + login(credentials: Credentials) Promise~User~
-        + register(credentials: Credentials) Promise~User~
-        + getCurrentUser() Promise~User~
-        + logout() Promise~void~
-    }
+    Client -->|Http-request| Server
+    Server -->|Initializes| App
 
-    authService --> authController
+    Routes["authRoutes <br> (/api/auth)"]
 
-    class useLogin {
-        <<Hook>>
-        + mutate(credentials: Credentials) Promise~User~
-    }
+    App --> Routes
 
-    class useRegister {
-        <<Hook>>
-        + mutate(credentials: Credentials) Promise~User~
-    }
+    subgraph Endpoints
+        Login["POST /login"]
+        Register["POST /register"]
+        Logout["POST /logout"]
+        Me["GET /me"]
+    end
 
-    class useUser {
-        <<Hook>>
-        + query() Promise~User~
-    }
+    Routes --> Login
+    Routes --> Register
+    Routes --> Logout
+    Routes --> Me
 
-    %% Hooks call the auth service and work with the shared types
-    useLogin ..> authService
-    useRegister ..> authService
-    useUser ..> authService
+    subgraph Middleware
+        ValidateBody["validateBody <br> (Zod Schema)"]
+        RequireAuth["requireAuth <br> (Verify JWT Cookie)"]
+    end
 
-    useLogin ..> Credentials : Uses
-    useRegister ..> Credentials : Uses
-    useUser ..> User : Uses
+    Login --> ValidateBody
+    Register --> ValidateBody
+    Me --> RequireAuth
 
-    class Credentials {
-        <<Type>>
-        + username: string
-        + password: string
-    }
+    AuthController["authController <br> (Request / Response Handling)"]
 
-    class User {
-        <<Type>>
-        + id: string
-        + username: string
-    }
+    ValidateBody --> AuthController
+    Logout --> AuthController
+    RequireAuth --> AuthController
 
-    class ProtectedRoute {
-        <<Component>>
-    }
+    subgraph Configurations ["Application Configuration"]
+        Cookies["cookies.ts <br> (Cookie & Environment Options)"]
+    end
 
-    class LogoutDialog {
-        <<Component>>
-        + LOGOUT_DIALOG_ID: string
-        + onConfirm: () => void
-    }
+    AuthController -.->|Sets & clears cookies| Cookies
 
-    class Home {
-        <<Route>>
-    }
+    subgraph Business_Logic["Business Logic & Utilities"]
+        UserService["userService <br> (createUser, authenticateUser...)"]
 
-    class Login {
-        <<Route>>
-        - handleSubmit(e: SubmitEvent~HTMLFormElement~) void
-    }
+        subgraph Utils
+            Password["password <br> (hashPassword, comparePassword)"]
+            JWT["jwt <br> (signToken, verifyToken)"]
+        end
+    end
 
-    class Register {
-        <<Route>>
-        - MIN_PASSWORD_LENGTH: number$
-        - passwordError: string
-        - confirmPasswordError: string
-        - clearErrors() void
-        - handleSubmit(e: SubmitEvent~HTMLFormElement~) void
-    }
-
-    class Dashboard {
-        <<Route>>
-        - handleLogout() Promise~void~
-    }
-
-    %% Routes use the hooks (and the data they return)
-    Login ..> useLogin : Uses
-    Register ..> useRegister : Uses
-    Dashboard ..> useUser : Uses
-    ProtectedRoute ..> useUser : Uses
-    Dashboard ..> authService : Uses
-
-    %% Composition: the whole creates and owns the part
-    Dashboard *-- LogoutDialog : renders
-
-    %% ==========================================
-    %% Server
-    %% ==========================================
-    class authController {
-        <<Server-Controller>>
-        + register(req: Request, res: Response) Promise~User~
-        + login(req: Request, res: Response) Promise~User~
-    }
-
-    class userService {
-        <<Server-Service>>
-        - users: NewUser[]
-        - pendingUsernames: Set~string~
-        - toUser(user: NewUser) User
-        - findByUsername(username: string) User
-        + createUser(username: string, password: string, log: Logger) Promise~User~
-        + authenticateUser(username: string, password: string, log: Logger) Primse~User~
-        + getUserById(id: string, log: Logger) Promise~User | undefined~
-    }
-
-    authController --> userService
-    authController ..> AuthenticationError : uses
-
-    class NewUser {
-        <<Type>>
-        id: string
-        username: string
-        passwordHash: string
-    }
-
-    class ServerUser["User"] {
-        <<Type>>
-        + id: string
-        + username: string
-    }
-
-    userService ..> NewUser : uses
-    userService ..> ServerUser : uses
-
-    class password {
-        <<Utillity>>
-        + hashPassword(password: string) Promise~string~
-        + comparePassword(password: string, passwordHash: string) Promise~boolean~
-    }
-
-    userService ..> password : uses
-
-    class ValidationError {
-        + ~constructor~ ValidationError(message: string)
-    }
-
-    class AuthenticationError {
-        + ~constructor~ AuthenticationError(message: string)
-    }
-
-    class ConflictError {
-        + ~constructor~ ConfilctError(message: string)
-    }
-
-    userService ..> ValidationError : throws
-    userService ..> ConflictError : throws
-    userService ..> AuthenticationError : throws
-
-    class jwt {
-        <<Utillity>>
-        + signToken(user: User) string
-        + verifyToken(token: string) JWTPayload
-    }
-
-    class JWTPayload {
-        <<Type>>
-        + sub: string
-        + username: string
-    }
-
-    authController ..> jwt
-    jwt ..> AuthenticationError : throws
-    jwt ..> JWTPayload : uses
+    AuthController --> UserService
+    UserService -.-> Password
+    AuthController -.->|Signs token| JWT
+    RequireAuth -.->|Verifies token| JWT
 ```
