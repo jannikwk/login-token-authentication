@@ -12,9 +12,12 @@
 ![homepage](assets/homepage.png)
 
 ## Backend Component Architecture & Request Pipeline
+## Backend Component Architecture & Request Pipeline
 ```mermaid
-classDiagram-v2
-    direction TB
+graph LR
+    Client["Client / Frontend"]
+    Server
+    App
 
     namespace Frontend {    
         class AuthService {
@@ -27,30 +30,29 @@ classDiagram-v2
         }
     }
 
-    authService --> authController
+    Routes["authRoutes <br> (/api/auth)"]
 
-    class useLogin {
-        <<Hook>>
-        + mutate(credentials: Credentials) Promise~User~
-    }
+    App --> Routes
 
-    class useRegister {
-        <<Hook>>
-        + mutate(credentials: Credentials) Promise~User~
-    }
+    subgraph Endpoints
+        Login["POST /login"]
+        Register["POST /register"]
+        Logout["POST /logout"]
+        Me["GET /me"]
+    end
 
-    class useUser {
-        <<Hook>>
-        + query() Promise~User~
-    }
+    Routes --> Login
+    Routes --> Register
+    Routes --> Logout
+    Routes --> Me
 
     useLogin ..> AuthService
     useRegister ..> AuthService
     useUser ..> AuthService
 
-    useLogin ..> Credentials : Uses
-    useRegister ..> Credentials : Uses
-    useUser ..> User : Uses
+    Login --> ValidateBody
+    Register --> ValidateBody
+    Me --> RequireAuth
 
     class Credentials {
         <<Type>>
