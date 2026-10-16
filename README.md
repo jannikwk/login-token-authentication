@@ -14,7 +14,7 @@
 ## Backend Component Architecture & Request Pipeline
 ```mermaid
 %%{init: {'flowchart': {'wrappingWidth': 600}}}%%
-graph TD
+graph LR
     Client["Client / Frontend"]
     Server
     App
