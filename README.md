@@ -14,7 +14,7 @@
 ## Backend Component Architecture & Request Pipeline
 ```mermaid
 %%{init: {'flowchart': {'wrappingWidth': 600}}}%%
-graph LR
+graph TD
     Client["Client / Frontend"]
     Server
     App
@@ -72,4 +72,11 @@ graph LR
     UserService -.-> Password
     AuthController -.->|Signs token| JWT
     RequireAuth -.->|Verifies token| JWT
+
+    subgraph Shared
+        User["user <br> (Credentials, StoredUser, PublicUser)"]
+    end
+
+    ValidateBody -.->|Validates body| User
+    UserService -.->|Infers TS types| User
 ```
