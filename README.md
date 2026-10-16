@@ -21,7 +21,7 @@ graph TD
     Client -->|Http-request| Server
     Server -->|Initializes| App
 
-    Routes["`authRoutes <br> (/api/auth)`"]
+    Routes["authRoutes <br> (/api/auth)"]
 
     App --> Routes
 
@@ -38,32 +38,32 @@ graph TD
     Routes --> Me
 
     subgraph Middleware
-        ValidateBody["`validateBody <br> (Zod Schema)`"]
-        RequireAuth["`requireAuth <br> (Verify JWT Cookie)`"]
+        ValidateBody["validateBody <br> (Zod Schema)"]
+        RequireAuth["requireAuth <br> (Verify JWT Cookie)"]
     end
 
     Login --> ValidateBody
     Register --> ValidateBody
     Me --> RequireAuth
 
-    AuthController["`authController <br> (Request / Response Handling)`"]
+    AuthController["authController <br> (Request / Response Handling)"]
 
     ValidateBody --> AuthController
     Logout --> AuthController
     RequireAuth --> AuthController
 
     subgraph Configurations ["Application Configuration"]
-        Cookies["`cookies.ts <br> (Cookie & Environment Options)`"]
+        Cookies["cookies.ts <br> (Cookie & Environment Options)"]
     end
 
     AuthController -.->|Sets & clears cookies| Cookies
 
     subgraph Business_Logic["Business Logic & Utilities"]
-        UserService["`userService <br> (createUser, authenticateUser...)`"]
+        UserService["userService <br> (createUser, authenticateUser...)"]
 
         subgraph Utils
-            Password["`password <br> (hashPassword, comparePassword)`"]
-            JWT["`jwt <br> (signToken, verifyToken)`"]
+            Password["password <br> (hashPassword, comparePassword)"]
+            JWT["jwt <br> (signToken, verifyToken)"]
         end
     end
 
@@ -71,4 +71,12 @@ graph TD
     UserService -.-> Password
     AuthController -.->|Signs token| JWT
     RequireAuth -.->|Verifies token| JWT
+
+    style Cookies width:250px
+    style AuthController width:250px
+    style ValidateBody width:200px
+    style RequireAuth width:200px
+    style UserService width:250px
+    style Password width:240px
+    style JWT width:200px
 ```
