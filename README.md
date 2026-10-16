@@ -13,6 +13,7 @@
 
 ## Backend Component Architecture & Request Pipeline
 ```mermaid
+%%{init: {'flowchart': {'wrappingWidth': 600}}}%%
 graph TD
     Client["Client / Frontend"]
     Server
@@ -71,12 +72,4 @@ graph TD
     UserService -.-> Password
     AuthController -.->|Signs token| JWT
     RequireAuth -.->|Verifies token| JWT
-
-    style Cookies width:250px
-    style AuthController width:250px
-    style ValidateBody width:200px
-    style RequireAuth width:200px
-    style UserService width:250px
-    style Password width:240px
-    style JWT width:200px
 ```
