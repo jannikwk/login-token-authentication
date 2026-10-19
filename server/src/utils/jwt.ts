@@ -1,14 +1,14 @@
 import jwt from "jsonwebtoken";
-import { User } from "../types/user.types";
 import { env } from "../config/env";
 import { AuthenticationError } from "../errors/AppError";
+import { PublicUser } from "@app/shared";
 
 export type JWTPayload = {
     sub: string;
     username: string;
 };
 
-export const signToken = (user: User) => {
+export const signToken = (user: PublicUser) => {
     return jwt.sign(
         { username: user.username },
         env.jwtSecret,

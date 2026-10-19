@@ -1,5 +1,5 @@
 {
-  "name": "vite-project",
+  "name": "client",
   "private": true,
   "type": "module",
   "scripts": {
@@ -9,6 +9,7 @@
     "typecheck": "react-router typegen && tsc"
   },
   "dependencies": {
+    "@app/shared": "*",
     "@react-router/node": "^8",
     "@react-router/serve": "^8",
     "@tanstack/react-query": "^5.101.4",

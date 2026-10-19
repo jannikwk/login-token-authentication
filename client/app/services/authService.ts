@@ -1,11 +1,10 @@
+import type { Credentials, PublicUser } from "@app/shared";
 import axios from "axios";
-import type { Credentials } from "~/types/auth.types";
-import type { User } from "~/types/user.types";
 
 const baseURL = import.meta.env.VITE_API_URL;
 const api = axios.create({ baseURL, withCredentials: true })
 
-export const login = async (credentials: Credentials): Promise<User> => {
+export const login = async (credentials: Credentials): Promise<PublicUser> => {
     const response = await api.post(`${baseURL}/api/auth/login`, {
         username: credentials.username,
         password: credentials.password
@@ -13,7 +12,7 @@ export const login = async (credentials: Credentials): Promise<User> => {
     return response.data;
 }
 
-export const register = async (credentials: Credentials): Promise<User> => {
+export const register = async (credentials: Credentials): Promise<PublicUser> => {
     const response = await api.post(`${baseURL}/api/auth/register`, {
         username: credentials.username,
         password: credentials.password
@@ -21,7 +20,7 @@ export const register = async (credentials: Credentials): Promise<User> => {
     return response.data;
 }
 
-export const getCurrentUser = async (): Promise<User> => {
+export const getCurrentUser = async (): Promise<PublicUser> => {
     const response = await api.get(`${baseURL}/api/auth/me`);
     return response.data;
 }

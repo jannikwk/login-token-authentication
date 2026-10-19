@@ -1,6 +1,6 @@
+import type { Credentials } from "@app/shared";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { register } from "~/services/authService";
-import type { Credentials } from "~/types/auth.types";
 
 export const useRegister = () => {
     const queryClient = useQueryClient();
