@@ -6,7 +6,7 @@ export const TOKEN_COOKIE = 'token';
 export const TOKEN_COOKIE_OPTIONS = {
     httpOnly: true,
     secure: env.isProduction,
-    sameSite: 'none' as const,
+    sameSite: env.isProduction ? 'none' as const : 'lax' as const,
 };
 
 export const setTokenCookie = (res: Response, token: string) => {

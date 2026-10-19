@@ -1,18 +1,18 @@
 import { v7 as uuidv7 } from "uuid";
-import type { NewUser, User } from "../types/user.types";
 import { AuthenticationError, ConflictError, ValidationError } from "../errors/AppError";
 import { logger } from "../utils/logger";
 import type { Logger } from "pino";
 import { comparePassword, hashPassword } from "../utils/password";
+import { PublicUser, StoredUser } from "@app/shared";
 
-const users: NewUser[] = [];
+const users: StoredUser[] = [];
 const pendingUsernames = new Set<string>();
 
-const toUser = (user: NewUser): User => ({ id: user.id, username: user.username });
+const toUser = (user: StoredUser): PublicUser => ({ id: user.id, username: user.username });
 
 const findByUsername = (username: string) => users.find((u) => u.username === username);
 
-export const createUser = async (username: string, password: string, log: Logger = logger): Promise<User> => {
+export const createUser = async (username: string, password: string, log: Logger = logger): Promise<PublicUser> => {
     const normalizedUsername = typeof username === 'string' ? username.trim() : '';
     
     if (!normalizedUsername) {
@@ -33,7 +33,7 @@ export const createUser = async (username: string, password: string, log: Logger
     try {
         const encryptedPassword = await hashPassword(password);
 
-        const newUser: NewUser = {
+        const newUser: StoredUser = {
             id: uuidv7(),
             username: normalizedUsername,
             passwordHash: encryptedPassword
@@ -48,7 +48,7 @@ export const createUser = async (username: string, password: string, log: Logger
     }
 };
 
-export const authenticateUser = async (username: string, password: string, log: Logger = logger): Promise<User> => {
+export const authenticateUser = async (username: string, password: string, log: Logger = logger): Promise<PublicUser> => {
     const user = findByUsername(username);
     if (!user) {
         log.warn('Authentication failed because the user does not exist');
@@ -65,7 +65,7 @@ export const authenticateUser = async (username: string, password: string, log: 
     return toUser(user);
 };
 
-export const getUserById = async (id: string, log: Logger = logger): Promise<User | undefined> => {
+export const getUserById = async (id: string, log: Logger = logger): Promise<PublicUser | undefined> => {
     const user = users.find((u) => u.id === id);
     if (!user) {
         log.warn({ userId: id }, 'User not found');
