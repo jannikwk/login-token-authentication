@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import { env } from "../config/env";
-import { AuthenticationError } from "../errors/AppError";
+import { AuthenticationError } from "../errors/applicationErrors";
 import { PublicUser } from "@app/shared";
 
 export type JWTPayload = {

@@ -1,5 +1,5 @@
 import { v7 as uuidv7 } from "uuid";
-import { AuthenticationError, ConflictError, ValidationError } from "../errors/AppError";
+import { AuthenticationError, ConflictError, ValidationError } from "../errors/applicationErrors";
 import { logger } from "../utils/logger";
 import type { Logger } from "pino";
 import { comparePassword, hashPassword } from "../utils/password";
@@ -14,7 +14,7 @@ const findByUsername = (username: string) => users.find((u) => u.username === us
 
 export const createUser = async (username: string, password: string, log: Logger = logger): Promise<PublicUser> => {
     const normalizedUsername = typeof username === 'string' ? username.trim() : '';
-    
+
     if (!normalizedUsername) {
         throw new ValidationError('Please enter a username');
     }
@@ -41,7 +41,7 @@ export const createUser = async (username: string, password: string, log: Logger
 
         users.push(newUser);
         log.info({ userId: newUser.id }, 'User created successfully');
-        
+
         return toUser(newUser);
     } finally {
         pendingUsernames.delete(normalizedUsername);

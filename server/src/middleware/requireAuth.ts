@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
-import { AuthenticationError } from '../errors/AppError';
+import { AuthenticationError } from '../errors/applicationErrors';
 import { verifyToken } from '../utils/jwt';
 import { TOKEN_COOKIE } from '../config/cookies';
 

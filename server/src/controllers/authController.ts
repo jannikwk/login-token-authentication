@@ -2,7 +2,7 @@ import type { Request, Response } from 'express';
 import { authenticateUser, createUser, getUserById } from '../services/userService';
 import { signToken } from '../utils/jwt';
 import { clearTokenCookie, setTokenCookie } from '../config/cookies';
-import { AuthenticationError } from '../errors/AppError';
+import { UnauthenticatedError, UserNotFoundError } from '../errors/applicationErrors';
 
 export const register = async (req: Request, res: Response) => {
     const { username, password } = req.body;
@@ -30,11 +30,11 @@ export const logout = (req: Request, res: Response) => {
 };
 
 export const me = async (req: Request, res: Response) => {
-    if (!req.userId) throw new AuthenticationError('Not authenticated');
+    if (!req.userId) throw new UnauthenticatedError();
     const user = await getUserById(req.userId, req.log);
 
     if (!user) {
-        throw new AuthenticationError('User not found');
+        throw new UserNotFoundError(req.userId);
     }
 
     return res.status(200).json(user);
