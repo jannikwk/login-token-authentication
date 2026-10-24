@@ -1,5 +1,5 @@
 import { v7 as uuidv7 } from "uuid";
-import { AuthenticationError, ConflictError, ValidationError } from "../errors/applicationErrors";
+import { InvalidCredentialsError, InvalidInputError, UsernameAlreadyExistsError } from "../errors/applicationErrors";
 import { logger } from "../utils/logger";
 import type { Logger } from "pino";
 import { comparePassword, hashPassword } from "../utils/password";
@@ -16,16 +16,16 @@ export const createUser = async (username: string, password: string, log: Logger
     const normalizedUsername = typeof username === 'string' ? username.trim() : '';
 
     if (!normalizedUsername) {
-        throw new ValidationError('Please enter a username');
+        throw new InvalidInputError('Please enter a username');
     }
 
     if (typeof password !== 'string' || password.trim() === '') {
-        throw new ValidationError('Please enter a password');
+        throw new InvalidInputError('Please enter a password');
     }
 
     if (pendingUsernames.has(normalizedUsername) || findByUsername(normalizedUsername)) {
         log.warn({ username }, 'User creation failed because the username already exists');
-        throw new ConflictError('Username is already taken');
+        throw new UsernameAlreadyExistsError();
     }
 
     pendingUsernames.add(normalizedUsername);
@@ -52,13 +52,13 @@ export const authenticateUser = async (username: string, password: string, log: 
     const user = findByUsername(username);
     if (!user) {
         log.warn('Authentication failed because the user does not exist');
-        throw new AuthenticationError();
+        throw new InvalidCredentialsError('Invalid username or password');
     }
 
     const isPasswordValid = await comparePassword(password, user.passwordHash);
     if (!isPasswordValid) {
         log.warn('Authentication failed due to invalid password');
-        throw new AuthenticationError();
+        throw new InvalidCredentialsError('Invalid username or password');
     }
 
     log.info({ userId: user.id }, 'User authenticated successfully');

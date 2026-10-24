@@ -34,7 +34,7 @@ export const me = async (req: Request, res: Response) => {
     const user = await getUserById(req.userId, req.log);
 
     if (!user) {
-        throw new UserNotFoundError(req.userId);
+        throw new UserNotFoundError();
     }
 
     return res.status(200).json(user);

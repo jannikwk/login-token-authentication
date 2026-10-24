@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import { env } from "../config/env";
-import { AuthenticationError } from "../errors/applicationErrors";
+import { InvalidTokenError } from "../errors/applicationErrors";
 import { PublicUser } from "@app/shared";
 
 export type JWTPayload = {
@@ -22,11 +22,11 @@ export const verifyToken = (token: string): JWTPayload => {
 
         if (typeof payload === "string" || typeof payload.sub !== "string" || payload.sub.trim() === "" ||
             typeof payload.username !== 'string' || payload.username.trim() === '') {
-            throw new AuthenticationError("Invalid token payload");
+            throw new InvalidTokenError();
         }
 
         return payload as JWTPayload;
     } catch {
-        throw new AuthenticationError("Invalid or expired token");
+        throw new InvalidTokenError();
     }
 }

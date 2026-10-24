@@ -59,7 +59,7 @@ export class UnauthenticatedError extends ApplicationError {
 export class UserNotFoundError extends ApplicationError {
     readonly code = 'USER_NOT_FOUND';
 
-    constructor(userId: string, message = `User with id ${userId} not found`) {
+    constructor(message = 'User not found') {
         super(message);
     }
 }
