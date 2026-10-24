@@ -2,7 +2,7 @@ import type { NextFunction, Request, Response } from 'express';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { requireAuth } from '../../../src/middleware/requireAuth';
 import { signToken } from '../../../src/utils/jwt';
-import { AuthenticationError } from '../../../src/errors/AppError';
+import { InvalidTokenError, UnauthenticatedError } from '../../../src/errors/applicationErrors';
 
 const testUser = {
     id: '0192c9f4-0000-7000-8000-000000000000',
@@ -21,27 +21,27 @@ describe('requireAuth middleware', () => {
         return req;
     };
 
-    it('throws an AuthenticationError when the token cookie is missing', () => {
+    it('throws an UnauthenticatedError when the token cookie is missing', () => {
         const req = requestWithCookies(undefined);
 
         expect(() => requireAuth(req, {} as Response, next))
-            .toThrow(new AuthenticationError('Not authenticated'));
+            .toThrow(new UnauthenticatedError());
         expect(next).not.toHaveBeenCalled();
     });
 
-    it('throws an AuthenticationError when the token cookie is empty', () => {
+    it('throws an UnauthenticatedError when the token cookie is empty', () => {
         const req = requestWithCookies({});
 
         expect(() => requireAuth(req, {} as Response, next))
-            .toThrow(new AuthenticationError('Not authenticated'));
+            .toThrow(new UnauthenticatedError());
         expect(next).not.toHaveBeenCalled();
     });
 
-    it('throws an AuthenticationError for a malformed token', () => {
+    it('throws an InvalidTokenError for a malformed token', () => {
         const req = requestWithCookies({ token: 'not-a-valid-token' });
 
         expect(() => requireAuth(req, {} as Response, next))
-            .toThrow(new AuthenticationError('Invalid or expired token'));
+            .toThrow(new InvalidTokenError());
         expect(next).not.toHaveBeenCalled();
     });
 

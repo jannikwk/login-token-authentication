@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { errorHandler } from '../../../src/middleware/errorHandler';
-import { AppError, ConflictError } from '../../../src/errors/AppError';
+import { InvalidInputError, UsernameAlreadyExistsError } from '../../../src/errors/applicationErrors';
 
 const createResponse = () => {
     const res = {
@@ -29,8 +29,8 @@ describe('errorHandler middleware', () => {
         next = vi.fn();
     });
 
-    it('responds with the status code and message of an AppError', () => {
-        const error = new ConflictError('Username is already taken');
+    it('maps an application error to its HTTP status and message', () => {
+        const error = new UsernameAlreadyExistsError();
 
         errorHandler(error, req, res as unknown as Response, next);
 
@@ -71,12 +71,12 @@ describe('errorHandler middleware', () => {
         expect((res.err as Error).message).toBe('Internal server error');
     });
 
-    it('works for an AppError created without a subclass', () => {
-        const error = new AppError('Teapot', 418);
+    it('maps different application error codes independently of their class names', () => {
+        const error = new InvalidInputError('Username is required');
 
         errorHandler(error, req, res as unknown as Response, next);
 
-        expect(res.status).toHaveBeenCalledWith(418);
-        expect(res.json).toHaveBeenCalledWith({ message: 'Teapot' });
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ message: 'Username is required' });
     });
 });

@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { describe, expect, it } from 'vitest';
 import { signToken, verifyToken } from '../../../src/utils/jwt';
-import { AuthenticationError } from '../../../src/errors/AppError';
+import { InvalidTokenError } from '../../../src/errors/applicationErrors';
 import { env } from '../../../src/config/env';
 
 const testUser = {
@@ -35,12 +35,12 @@ describe('verifyToken', () => {
         expect(payload).toHaveProperty('iat');
     });
 
-    it('throws an AuthenticationError for a malformed token', () => {
+    it('throws an InvalidTokenError for a malformed token', () => {
         expect(() => verifyToken('not-a-valid-token'))
-            .toThrow(new AuthenticationError('Invalid or expired token'));
+            .toThrow(new InvalidTokenError());
     });
 
-    it('throws an AuthenticationError for a token signed with a different secret', () => {
+    it('throws an InvalidTokenError for a token signed with a different secret', () => {
         const foreignToken = jwt.sign(
             { username: testUser.username },
             'a-completely-different-secret-value!',
@@ -48,10 +48,10 @@ describe('verifyToken', () => {
         );
 
         expect(() => verifyToken(foreignToken))
-            .toThrow(new AuthenticationError('Invalid or expired token'));
+            .toThrow(new InvalidTokenError());
     });
 
-    it('throws an AuthenticationError for an expired token', () => {
+    it('throws an InvalidTokenError for an expired token', () => {
         const expiredToken = jwt.sign(
             { username: testUser.username },
             env.jwtSecret,
@@ -59,11 +59,11 @@ describe('verifyToken', () => {
         );
 
         expect(() => verifyToken(expiredToken))
-            .toThrow(new AuthenticationError('Invalid or expired token'));
+            .toThrow(new InvalidTokenError());
     });
 
-    it('throws an AuthenticationError for an empty token', () => {
+    it('throws an InvalidTokenError for an empty token', () => {
         expect(() => verifyToken(''))
-            .toThrow(new AuthenticationError('Invalid or expired token'));
+            .toThrow(new InvalidTokenError());
     });
 });

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { z } from "zod";
-import { ValidationError } from "../errors/AppError";
+import { InvalidInputError } from "../errors/applicationErrors";
 
 export const validateBody = (schema: z.ZodType) => {
     return (req: Request, _res: Response, next: NextFunction) => {
@@ -8,7 +8,7 @@ export const validateBody = (schema: z.ZodType) => {
 
         if (!result.success) {
             const firstError = result.error.issues[0]?.message;
-            throw new ValidationError(firstError);
+            throw new InvalidInputError(firstError);
         }
 
         req.body = result.data;
