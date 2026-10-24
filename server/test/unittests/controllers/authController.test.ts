@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { login, logout, me, register } from '../../../src/controllers/authController';
-import { ConflictError } from '../../../src/errors/AppError';
+import { UsernameAlreadyExistsError } from '../../../src/errors/applicationErrors';
 
 const mocks = vi.hoisted(() => ({
     createUser: vi.fn(),
@@ -68,7 +68,7 @@ describe('register', () => {
     });
 
     it('propagates a creation failure such as a username conflict', async () => {
-        mocks.createUser.mockRejectedValue(new ConflictError('Username is already taken'));
+        mocks.createUser.mockRejectedValue(new UsernameAlreadyExistsError());
         const req = createRequest(credentials);
         const res = createResponse();
 

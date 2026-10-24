@@ -23,11 +23,11 @@ describe('token cookie constants', () => {
         expect(TOKEN_COOKIE).toBe('token');
     });
 
-    it('marks the cookie httpOnly, sameSite none, and secure only in production', () => {
+    it('configures the cookie with HTTP-only and environment-aware security settings', () => {
         expect(TOKEN_COOKIE_OPTIONS).toEqual({
             httpOnly: true,
             secure: env.isProduction,
-            sameSite: 'none',
+            sameSite: env.isProduction ? 'none' : 'lax',
         });
     });
 });
@@ -39,9 +39,7 @@ describe('setTokenCookie', () => {
         setTokenCookie(res as unknown as Response, 'signed-token');
 
         expect(res.cookie).toHaveBeenCalledWith('token', 'signed-token', {
-            httpOnly: true,
-            secure: env.isProduction,
-            sameSite: 'none',
+            ...TOKEN_COOKIE_OPTIONS,
             maxAge: env.jwtExpiresIn * 1000,
         });
     });
