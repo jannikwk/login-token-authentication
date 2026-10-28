@@ -1,16 +1,13 @@
-import { v7 as uuidv7 } from "uuid";
 import { InvalidCredentialsError, InvalidInputError, UsernameAlreadyExistsError } from "../errors/applicationErrors";
 import { logger } from "../utils/logger";
 import type { Logger } from "pino";
 import { comparePassword, hashPassword } from "../utils/password";
 import { PublicUser, StoredUser } from "@app/shared";
+import { addUser, findById, findByUsername } from "../repositories/userRepository";
 
-const users: StoredUser[] = [];
 const pendingUsernames = new Set<string>();
 
 const toUser = (user: StoredUser): PublicUser => ({ id: user.id, username: user.username });
-
-const findByUsername = (username: string) => users.find((u) => u.username === username);
 
 export const createUser = async (username: string, password: string, log: Logger = logger): Promise<PublicUser> => {
     const normalizedUsername = typeof username === 'string' ? username.trim() : '';
@@ -31,15 +28,14 @@ export const createUser = async (username: string, password: string, log: Logger
     pendingUsernames.add(normalizedUsername);
 
     try {
-        const encryptedPassword = await hashPassword(password);
+        const passwordHash = await hashPassword(password);
+        
+        const newUser = addUser(normalizedUsername, passwordHash);
+        if (!newUser) {
+            log.warn({ username }, 'User creation failed because the username already exists');
+            throw new UsernameAlreadyExistsError();
+        }
 
-        const newUser: StoredUser = {
-            id: uuidv7(),
-            username: normalizedUsername,
-            passwordHash: encryptedPassword
-        };
-
-        users.push(newUser);
         log.info({ userId: newUser.id }, 'User created successfully');
 
         return toUser(newUser);
@@ -66,7 +62,7 @@ export const authenticateUser = async (username: string, password: string, log: 
 };
 
 export const getUserById = async (id: string, log: Logger = logger): Promise<PublicUser | undefined> => {
-    const user = users.find((u) => u.id === id);
+    const user = findById(id);
     if (!user) {
         log.warn({ userId: id }, 'User not found');
         return undefined;
