@@ -9,14 +9,14 @@ export const findByUsername = (username: string): StoredUser | undefined =>
 export const findById = (id: string): StoredUser | undefined =>
     users.find((u) => u.id === id);
 
-export const addUser = (normalizedUsername: string, passwordHash: string): StoredUser | undefined => {
-    if (findByUsername(normalizedUsername)) {
+export const addUser = (username: string, passwordHash: string): StoredUser | undefined => {
+    if (findByUsername(username)) {
         return undefined;
     }
 
     const newUser: StoredUser = {
         id: uuidv7(),
-        username: normalizedUsername,
+        username,
         passwordHash
     };
 

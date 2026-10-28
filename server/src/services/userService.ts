@@ -10,27 +10,17 @@ const pendingUsernames = new Set<string>();
 const toUser = (user: StoredUser): PublicUser => ({ id: user.id, username: user.username });
 
 export const createUser = async (username: string, password: string, log: Logger = logger): Promise<PublicUser> => {
-    const normalizedUsername = typeof username === 'string' ? username.trim() : '';
-
-    if (!normalizedUsername) {
-        throw new InvalidInputError('Please enter a username');
-    }
-
-    if (typeof password !== 'string' || password.trim() === '') {
-        throw new InvalidInputError('Please enter a password');
-    }
-
-    if (pendingUsernames.has(normalizedUsername) || findByUsername(normalizedUsername)) {
+    if (pendingUsernames.has(username) || findByUsername(username)) {
         log.warn({ username }, 'User creation failed because the username already exists');
         throw new UsernameAlreadyExistsError();
     }
 
-    pendingUsernames.add(normalizedUsername);
+    pendingUsernames.add(username);
 
     try {
         const passwordHash = await hashPassword(password);
         
-        const newUser = addUser(normalizedUsername, passwordHash);
+        const newUser = addUser(username, passwordHash);
         if (!newUser) {
             log.warn({ username }, 'User creation failed because the username already exists');
             throw new UsernameAlreadyExistsError();
@@ -40,7 +30,7 @@ export const createUser = async (username: string, password: string, log: Logger
 
         return toUser(newUser);
     } finally {
-        pendingUsernames.delete(normalizedUsername);
+        pendingUsernames.delete(username);
     }
 };
 
