@@ -7,6 +7,7 @@ const createResponse = () => {
     const res = {
         status: vi.fn(),
         json: vi.fn(),
+        headersSent: false,
         err: undefined as unknown,
     };
     res.status.mockReturnValue(res);
@@ -78,5 +79,26 @@ describe('errorHandler middleware', () => {
 
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({ message: 'Username is required' });
+    });
+
+    it('falls back to 500 for an application error with an unknown code', () => {
+        const error = new InvalidInputError('Unexpected application error');
+        Object.defineProperty(error, 'code', { value: 'UNKNOWN_CODE' });
+
+        errorHandler(error, req, res as unknown as Response, next);
+
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.json).toHaveBeenCalledWith({ message: 'Unexpected application error' });
+    });
+
+    it('delegates when the response headers have already been sent', () => {
+        const error = new Error('stream failed');
+        res.headersSent = true;
+
+        errorHandler(error, req, res as unknown as Response, next);
+
+        expect(next).toHaveBeenCalledWith(error);
+        expect(res.status).not.toHaveBeenCalled();
+        expect(res.json).not.toHaveBeenCalled();
     });
 });

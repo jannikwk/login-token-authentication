@@ -15,7 +15,7 @@ export const errorHandler = (error: unknown, req: Request, res: Response, _next:
     let message = 'Internal server error';
 
     if (error instanceof ApplicationError) {
-        statusCode = statusCodeByErrorCode[error.code];
+        statusCode = statusCodeByErrorCode[error.code] ?? 500;
         message = error.message;
 
         req.log.warn({ statusCode, message }, 'Request failed with application error');
@@ -27,5 +27,9 @@ export const errorHandler = (error: unknown, req: Request, res: Response, _next:
     }
 
     res.err = error instanceof Error ? error : new Error(message);
+    if (res.headersSent) {
+        return _next(error);
+    }
+
     return res.status(statusCode).json({ message });
 };
