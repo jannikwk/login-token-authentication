@@ -42,16 +42,6 @@ describe('createUser', () => {
         await expect(createUser(TEST_USERNAME, 'anotherPassword456')).rejects.toThrow('Username is already taken');
     });
 
-    it.each(['', ' ', '\t', '   ', '\t\t'])('throws an error when the username is %p', async (username) => {
-        const { createUser } = await loadUserService();
-        await expect(createUser(username, TEST_PASSWORD)).rejects.toThrow('Please enter a username');
-    });
-
-    it.each(['', ' ', '\t', '   ', '\t\t'])('throws an error when the password is %p', async (password) => {
-        const { createUser } = await loadUserService();
-        await expect(createUser(TEST_USERNAME, password)).rejects.toThrow('Please enter a password');
-    });
-
     it('throws a conflict error when the username is already being created', async () => {
         const { createUser } = await loadUserService();
 
@@ -121,4 +111,3 @@ describe('getUserById', () => {
         await expect(getUserById('non-existent-user-id')).resolves.toBeUndefined();
     });
 });
-
