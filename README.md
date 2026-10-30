@@ -11,6 +11,21 @@
 ## Preview (Home + Succesful login)
 ![homepage](assets/homepage.png)
 
+## Server tests
+
+Run the server test suite from the `server` directory:
+
+```powershell
+npm test
+npx tsc --noEmit -p test
+```
+
+The suite includes API integration tests that start the Express app on an ephemeral
+local port and use Node.js 22's built-in `fetch`. They exercise registration, login,
+JWT cookie authentication, protected user lookup, logout, validation errors, duplicate
+users, invalid credentials, and invalid or expired tokens without requiring Docker,
+a database, or an additional HTTP test dependency.
+
 ## Backend Component Architecture & Request Pipeline
 ```mermaid
 %%{init: {'flowchart': {'wrappingWidth': 600}}}%%
