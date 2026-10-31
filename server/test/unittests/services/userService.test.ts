@@ -50,6 +50,21 @@ describe('createUser', () => {
         await expect(createUser(TEST_USERNAME, 'anotherPassword456')).rejects.toThrow('Username is already taken');
         await firstCall;
     });
+
+    it('rejects credentials that do not satisfy the shared schema', async () => {
+        const { createUser } = await loadUserService();
+
+        await expect(createUser('ab', TEST_PASSWORD)).rejects.toThrow('Username must be at least 3 characters');
+        await expect(createUser(TEST_USERNAME, 'short')).rejects.toThrow('Password must be at least 10 characters');
+    });
+
+    it('normalizes the username before storing it', async () => {
+        const { createUser } = await loadUserService();
+
+        const user = await createUser(` ${TEST_USERNAME} `, TEST_PASSWORD);
+
+        expect(user.username).toBe(TEST_USERNAME);
+    });
 })
 
 describe('authenticateUser', () => {
@@ -92,6 +107,20 @@ describe('authenticateUser', () => {
 
         await expect(authenticateUser(TEST_USERNAME, ''))
             .rejects.toThrow('Invalid username or password');
+    });
+
+    it('rejects invalid direct authentication input without exposing validation details', async () => {
+        const { authenticateUser } = await loadUserService();
+
+        await expect(authenticateUser('ab', TEST_PASSWORD))
+            .rejects.toThrow('Invalid username or password');
+    });
+
+    it('normalizes the username before authenticating', async () => {
+        const { createUser, authenticateUser } = await loadUserService();
+        const createdUser = await createUser(TEST_USERNAME, TEST_PASSWORD);
+
+        await expect(authenticateUser(` ${TEST_USERNAME} `, TEST_PASSWORD)).resolves.toEqual(createdUser);
     });
 })
 
