@@ -60,7 +60,15 @@ describe('authentication API lifecycle', () => {
 
         expect(logoutResponse.status).toBe(200);
         expect(await logoutResponse.json()).toEqual({ message: 'Logged out successfully' });
-        expect(logoutResponse.headers.get('set-cookie')).toMatch(/token=/);
+        const logoutSetCookie = logoutResponse.headers.get('set-cookie');
+        expect(logoutSetCookie).toMatch(/(?:^|,\s*)token=;/i);
+
+        const expires = logoutSetCookie?.match(/(?:^|;\s*)Expires=([^;]+)/i)?.[1];
+        const maxAge = logoutSetCookie?.match(/(?:^|;\s*)Max-Age=(-?\d+)/i)?.[1];
+        expect(
+            (expires !== undefined && Date.parse(expires) < Date.now())
+            || (maxAge !== undefined && Number(maxAge) <= 0),
+        ).toBe(true);
 
         const unauthenticatedResponse = await jsonRequest(baseUrl, '/api/auth/me');
         expect(unauthenticatedResponse.status).toBe(401);
