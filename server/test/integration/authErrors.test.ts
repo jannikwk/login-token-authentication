@@ -47,6 +47,16 @@ describe('authentication API errors', () => {
         expect(await duplicateResponse.json()).toEqual({ message: 'Username is already taken' });
     });
 
+    it('returns generic credentials errors for invalid login bodies', async () => {
+        const response = await jsonRequest(baseUrl, '/api/auth/login', {
+            method: 'POST',
+            body: JSON.stringify({ username: 'ab', password: 'short' }),
+        });
+
+        expect(response.status).toBe(401);
+        expect(await response.json()).toEqual({ message: 'Invalid username or password' });
+    });
+
     it('returns the same unauthorized response for unknown users and bad passwords', async () => {
         const credentials = uniqueCredentials();
         const registerResponse = await jsonRequest(baseUrl, '/api/auth/register', {
