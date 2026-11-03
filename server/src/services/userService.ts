@@ -1,9 +1,10 @@
 import { InvalidCredentialsError, InvalidInputError, UsernameAlreadyExistsError } from "../errors/applicationErrors";
 import { logger } from "../utils/logger";
 import type { Logger } from "pino";
-import { comparePassword, hashPassword } from "../utils/password";
+import { comparePassword, hashPassword } from "../utils/crypto";
 import { CredentialsSchema, PublicUser, StoredUser } from "@app/shared";
 import { addUser, findById, findByUsername } from "../repositories/userRepository";
+
 
 const pendingUsernames = new Set<string>();
 

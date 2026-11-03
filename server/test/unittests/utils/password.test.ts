@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { comparePassword, hashPassword } from '../../../src/utils/password';
+import { comparePassword, hashPassword } from '../../../src/utils/crypto';
 
 const TEST_PASSWORD = 'supersecret123';
 
