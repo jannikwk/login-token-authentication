@@ -51,13 +51,13 @@ graph TD
         UserService["userService <br> (createUser, authenticateUser...)"]
 
         subgraph Utils
-            Password["password <br> (hashPassword, comparePassword)"]
+            Crypto["crypto <br> (hashPassword, comparePassword)"]
             JWT["jwt <br> (signToken, verifyToken)"]
         end
     end
 
     AuthController --> UserService
-    UserService -.-> Password
+    UserService -.-> Crypto
     AuthController -.->|Signs token| JWT
     RequireAuth -.->|Verifies token| JWT
 
