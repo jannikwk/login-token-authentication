@@ -3,7 +3,7 @@ import { logger } from "../utils/logger";
 import type { Logger } from "pino";
 import { comparePassword, hashPassword } from "../utils/crypto";
 import { CredentialsSchema, PublicUser, StoredUser } from "@app/shared";
-import { addUser, findById, findByUsername } from "../repositories/userRepository";
+import { addUser, findById, findByUsername } from "../stores/userStore";
 
 
 const pendingUsernames = new Set<string>();
