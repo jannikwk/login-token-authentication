@@ -1,5 +1,7 @@
 # Backend Component Architecture & Request Pipeline
 
+The backend processes authentication requests through the Express application, routes, validation middleware, controllers, and user service. The user service handles authentication rules and password operations, while the in-memory user store manages stored users for the lifetime of the server process. JWT utilities and cookie configuration support session authentication; restarting the server clears the in-memory users.
+
 ```mermaid
 %%{init: {'flowchart': {'wrappingWidth': 600}}}%%
 graph TD
@@ -42,7 +44,7 @@ graph TD
     RequireAuth --> AuthController
 
     subgraph Configurations ["Application Configuration"]
-        Cookies["cookies.ts <br> (Cookie & Environment Options)"]
+        Cookies["cookies <br> (Cookie & Environment Options)"]
     end
 
     AuthController -.->|Sets & clears cookies| Cookies
@@ -60,6 +62,12 @@ graph TD
     UserService -.-> Crypto
     AuthController -.->|Signs token| JWT
     RequireAuth -.->|Verifies token| JWT
+
+    subgraph Storage["Storage"]
+        UserStore["userStore <br> (In-memory user store)"]
+    end
+
+    UserService --> UserStore
 
     subgraph Shared
         User["user <br> (Credentials, StoredUser, PublicUser)"]
