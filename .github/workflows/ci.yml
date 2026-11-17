@@ -10,6 +10,15 @@ on:
       - '.github/workflows/ci.yml'
     branches:
       - main
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
 
 permissions:
   contents: read
@@ -18,15 +27,14 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-defaults:
-  run:
-    working-directory: server
-
 jobs:
-  backend:
+  server:
     name: Backend typecheck & unit tests
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: server
 
     steps:
       - name: Checkout
