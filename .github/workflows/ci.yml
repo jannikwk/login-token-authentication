@@ -4,9 +4,18 @@ on:
   pull_request:
     paths:
       - 'server/**'
+      - 'client/**'
+      - 'shared/**'
+      - 'package-lock.json'
       - '.github/workflows/ci.yml'
     branches:
       - main
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
 
 permissions:
   contents: read
@@ -15,15 +24,14 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-defaults:
-  run:
-    working-directory: server
-
 jobs:
-  test:
-    name: Typecheck & unit tests
+  server:
+    name: Backend typecheck & unit tests
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: server
 
     steps:
       - name: Checkout
@@ -42,8 +50,39 @@ jobs:
       - name: Typecheck source
         run: npm run typecheck
 
-      - name: Typecheck unit tests
+      - name: Typecheck tests
         run: npx tsc --noEmit -p test
 
-      - name: Run unit tests
+      - name: Run tests
         run: npm test
+
+  client:
+    name: Frontend typecheck, tests & build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: client
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
