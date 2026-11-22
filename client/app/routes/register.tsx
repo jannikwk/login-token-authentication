@@ -2,8 +2,7 @@ import { useState } from "react";
 import { Form, Link, useNavigate } from "react-router";
 import type { Route } from "./+types/register";
 import { useRegister } from "~/hooks/auth/useRegister";
-
-const MIN_PASSWORD_LENGTH = 10;
+import { CredentialsSchema } from "@app/shared";
 
 export function meta({ }: Route.MetaArgs) {
     return [
@@ -16,43 +15,38 @@ export default function Register() {
     const registerMutation = useRegister();
     const navigate = useNavigate();
     const isPending = registerMutation.isPending;
-    const [passwordError, setPasswordError] = useState("");
-    const [confirmPasswordError, setConfirmPasswordError] = useState("");
-
-    const clearErrors = () => {
-        setPasswordError("");
-        setConfirmPasswordError("");
-    };
+    const [formError, setFormError] = useState("");
 
     const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         const formData = new FormData(e.currentTarget);
 
-        const username = formData.get("username");
-        const password = formData.get("password");
-        const confirmPassword = formData.get("confirmPassword");
-
-        if (typeof username !== "string" || typeof password !== "string" || typeof confirmPassword !== "string") {
+        if (formData.get("password") !== formData.get("confirmPassword")) {
+            setFormError("Passwords do not match");
             return;
         }
 
-        if (password.length < MIN_PASSWORD_LENGTH) {
-            setPasswordError(`Password must be at least ${MIN_PASSWORD_LENGTH} characters`);
+        const parsed = CredentialsSchema.safeParse({
+            username: formData.get("username"),
+            password: formData.get("password"),
+        });
+
+        if (!parsed.success) {
+            setFormError(parsed.error.issues[0].message);
             return;
         }
 
-        if (password !== confirmPassword) {
-            setConfirmPasswordError("Passwords do not match");
-            return;
-        }
-
-        clearErrors();
-        registerMutation.mutate(
-            { username, password },
-            { onSuccess: () => navigate("/login") }
-        );
+        setFormError("");
+        registerMutation.mutate(parsed.data, { onSuccess: () => navigate("/login") });
     }
+
+    const handleChange = () => {
+        if (formError) setFormError("");
+        if (registerMutation.isError) registerMutation.reset();
+    }
+
+    const errorMessage = formError || (registerMutation.isError ? registerMutation.error?.response?.data?.message ?? "Something went wrong. Please try again." : "");
 
     return (
         <main className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
@@ -61,12 +55,11 @@ export default function Register() {
                     ← Back
                 </Link>
                 <h1 className="font-bold text-2xl text-center">Register</h1>
-                <Form onSubmit={handleSubmit} method="post" className="flex flex-col gap-5 w-80">
+                <Form onSubmit={handleSubmit} method="post" className="flex flex-col gap-5 w-80" onChange={handleChange}>
                     <div className="flex flex-col gap-2">
                         <label htmlFor="username">Username:</label>
-                        <input type="text" id="username" name="username" className="bg-white rounded-sm text-black px-2 py-1" required />
+                        <input type="text" id="username" name="username" autoComplete="username" className="bg-white rounded-sm text-black px-2 py-1" required />
                     </div>
-
 
                     <div className="flex flex-col gap-2">
                         <label htmlFor="password">Password:</label>
@@ -75,10 +68,8 @@ export default function Register() {
                             id="password"
                             name="password"
                             className="bg-white rounded-sm text-black px-2 py-1"
-                            aria-invalid={!!passwordError}
-                            aria-describedby={passwordError ? "password-error" : undefined}
-                            onChange={clearErrors} required />
-                        {passwordError && <p id="password-error" className="text-red-400 text-sm">{passwordError}</p>}
+                            autoComplete="new-password"
+                            required />
                     </div>
 
                     <div className="flex flex-col gap-2">
@@ -88,12 +79,14 @@ export default function Register() {
                             id="confirmPassword"
                             name="confirmPassword"
                             className="bg-white rounded-sm text-black px-2 py-1"
-                            aria-invalid={!!confirmPasswordError}
-                            aria-describedby={confirmPasswordError ? "confirm-password-error" : undefined}
-                            onChange={clearErrors} required />
-                        {confirmPasswordError && <p id="confirm-password-error" className="text-red-400 text-sm">{confirmPasswordError}</p>}
+                            required />
                     </div>
 
+                    {errorMessage && (
+                        <p role="alert" className="text-red-400 text-sm">
+                            {errorMessage}
+                        </p>
+                    )}
 
                     <button
                         type="submit"

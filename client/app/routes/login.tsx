@@ -32,6 +32,10 @@ export default function Login() {
     );
   }
 
+  const handleChange = () => {
+    if (loginMutation.isError) loginMutation.reset();
+  }
+
   return (
     <main className="flex flex-col items-center justify-center gap-6 min-h-screen bg-gray-900 text-white">
       <article className="flex flex-col items-center gap-5 rounded-2xl border border-white bg-gray-800 p-10 shadow-lg">
@@ -39,16 +43,22 @@ export default function Login() {
           ← Back
         </Link>
         <h1 className="font-bold text-2xl text-center">Login</h1>
-        <Form onSubmit={handleSubmit} method="post" className="flex flex-col gap-5 w-80">
+        <Form onSubmit={handleSubmit} method="post" className="flex flex-col gap-5 w-80" onChange={handleChange}>
           <div className="flex flex-col gap-2">
             <label htmlFor="username">Username:</label>
-            <input type="text" id="username" name="username" className="bg-white rounded-sm text-black px-2 py-1" required />
+            <input type="text" id="username" name="username" className="bg-white rounded-sm text-black px-2 py-1" autoComplete="username" required />
           </div>
 
           <div className="flex flex-col gap-2">
             <label htmlFor="password">Password:</label>
-            <input type="password" id="password" name="password" className="bg-white rounded-sm text-black px-2 py-1" required />
+            <input type="password" id="password" name="password" className="bg-white rounded-sm text-black px-2 py-1" autoComplete="current-password" required />
           </div>
+
+          {loginMutation.isError && (
+            <p role="alert" className="text-red-400 text-sm">
+              {loginMutation.error.response?.data?.message ?? "Something went wrong. Please try again."}
+            </p>
+          )}
 
           <button
             type="submit"
