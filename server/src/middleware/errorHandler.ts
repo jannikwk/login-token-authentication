@@ -11,6 +11,8 @@ const statusCodeByErrorCode: Record<ApplicationErrorCode, number> = {
 };
 
 export const errorHandler = (error: unknown, req: Request, res: Response, _next: NextFunction) => {
+    if (res.headersSent) return _next(error);
+    
     let statusCode = 500;
     let message = 'Internal server error';
 
@@ -27,9 +29,5 @@ export const errorHandler = (error: unknown, req: Request, res: Response, _next:
     }
 
     res.err = error instanceof Error ? error : new Error(message);
-    if (res.headersSent) {
-        return _next(error);
-    }
-
     return res.status(statusCode).json({ message });
 };
