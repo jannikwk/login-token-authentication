@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import { describe, expect, it } from 'vitest';
 import { signToken, verifyToken } from '../../../src/utils/jwt';
 import { InvalidTokenError } from '../../../src/errors/applicationErrors';
-import { env } from '../../../src/config/env';
+import { testEnv } from '../../setup';
 
 const testUser = {
     id: '0192c9f4-0000-7000-8000-000000000000',
@@ -54,7 +54,7 @@ describe('verifyToken', () => {
     it('throws an InvalidTokenError for an expired token', () => {
         const expiredToken = jwt.sign(
             { username: testUser.username },
-            env.jwtSecret,
+            testEnv.JWT_SECRET,
             { subject: testUser.id, expiresIn: -60 }
         );
 

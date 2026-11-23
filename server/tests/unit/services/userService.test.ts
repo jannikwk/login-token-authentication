@@ -1,17 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-
-const TEST_CLIENT_URL = 'http://localhost:5173';
-const TEST_JWT_SECRET = 'abcdefghijklmnopqrstuvwxyz123456';
-const TEST_SALT_ROUNDS = '12';
+import { testEnv } from '../../setup';
 
 const TEST_USERNAME = 'alice';
 const TEST_PASSWORD = 'supersecret123';
 
 beforeEach(() => {
     vi.resetModules();
-    vi.stubEnv('CLIENT_URL', TEST_CLIENT_URL);
-    vi.stubEnv('JWT_SECRET', TEST_JWT_SECRET);
-    vi.stubEnv('SALT_ROUNDS', TEST_SALT_ROUNDS);
+    vi.stubEnv('CLIENT_URL', testEnv.CLIENT_URL);
+    vi.stubEnv('JWT_SECRET', testEnv.JWT_SECRET);
+    vi.stubEnv('SALT_ROUNDS', testEnv.SALT_ROUNDS);
 });
 
 afterEach(() => {

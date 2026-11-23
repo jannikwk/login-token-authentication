@@ -4,10 +4,10 @@ export default defineConfig({
     test: {
         environment: 'node',
         globals: true,
-        include: ['test/unittests/**/*.test.ts', 'test/integration/**/*.test.ts'],
+        include: ['tests/unit/**/*.test.ts', 'tests/integration/**/*.test.ts'],
         exclude: ['node_modules', 'dist'],
         passWithNoTests: true,
-        setupFiles: ['test/setup.ts'],
+        setupFiles: ['tests/setup.ts'],
         coverage: {
             provider: 'v8',
             include: ['src/**/*.ts'],

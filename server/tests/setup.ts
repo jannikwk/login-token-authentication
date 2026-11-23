@@ -2,7 +2,7 @@
 // import time. This file runs before every test file (see setupFiles in
 // vitest.config.mts) and publishes the test-only values onto process.env,
 // which is where src/config/env.ts reads them from.
-const TEST_ENV = {
+export const testEnv = {
     NODE_ENV: 'test',
     CLIENT_URL: 'http://localhost:5173',
     JWT_SECRET: 'test-jwt-secret-at-least-32-characters-long!!',
@@ -10,4 +10,4 @@ const TEST_ENV = {
     JWT_EXPIRES_IN_SECONDS: '3600',
 } as const;
 
-Object.assign(process.env, TEST_ENV);
+Object.assign(process.env, testEnv);

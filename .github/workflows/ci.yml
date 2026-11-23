@@ -50,7 +50,7 @@ jobs:
         run: npm run typecheck
 
       - name: Typecheck tests
-        run: npx tsc --noEmit -p test
+        run: npx tsc --noEmit -p tests/tsconfig.json
 
       - name: Run tests
         run: npm test

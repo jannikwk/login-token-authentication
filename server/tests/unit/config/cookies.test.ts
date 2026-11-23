@@ -6,7 +6,7 @@ import {
     clearTokenCookie,
     setTokenCookie,
 } from '../../../src/config/cookies';
-import { env } from '../../../src/config/env';
+import { testEnv } from '../../setup';
 
 const createResponse = () => {
     const res = {
@@ -26,8 +26,8 @@ describe('token cookie constants', () => {
     it('configures the cookie with HTTP-only and environment-aware security settings', () => {
         expect(TOKEN_COOKIE_OPTIONS).toEqual({
             httpOnly: true,
-            secure: env.isProduction,
-            sameSite: env.isProduction ? 'none' : 'lax',
+            secure: false,
+            sameSite: 'lax',
         });
     });
 });
@@ -40,7 +40,7 @@ describe('setTokenCookie', () => {
 
         expect(res.cookie).toHaveBeenCalledWith('token', 'signed-token', {
             ...TOKEN_COOKIE_OPTIONS,
-            maxAge: env.jwtExpiresIn * 1000,
+            maxAge: Number(testEnv.JWT_EXPIRES_IN_SECONDS) * 1000,
         });
     });
 });
